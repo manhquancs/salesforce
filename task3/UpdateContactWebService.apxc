@@ -1,0 +1,36 @@
+@RestResource(urlMapping='/update-contact')
+global with sharing class UpdateContactWebService {
+    // accept a payload of multple contacts and update those contacts.
+    // I assume that we just update some fields of the record
+	@HttpPatch
+    global static void updateContact() {
+    	RestRequest request = RestContext.request;
+        RestResponse response = RestContext.response;
+        String jSONRequestBody=request.requestBody.toString().trim();
+        List<Contact> contactsDeserialized = (List<Contact>) JSON.deserializeStrict(jSONRequestBody, List<Contact>.class);
+        // get all contact ids from input
+        List<Id> contactID = New List<Id>();
+        for(Contact c : contactsDeserialized){
+            contactID.add(c.ID);
+    	}
+        // fetch contacts by contactID from database then retrieve the id list
+        List<id> contactIdFetched = new List<id>();
+        for(Contact c : [SELECT id FROM Contact WHERE id in :contactID]){
+            contactIdFetched.add(c.id);
+        }
+        // One of the input objects is invalid when 2 above lists has different size
+        if (contactsDeserialized.size() > contactIdFetched.size()) {
+            for (Integer i = (contactID.size()-1) ; i>= 0 ; i--){
+                Id conId = contactID[i];
+                if(contactIdFetched.contains(conId)){
+                    contactID.remove(i);
+                }
+            }
+            RestContext.response.statusCode = 404;
+            RestContext.response.responseBody = Blob.valueOf('ID not found:' + contactID.toString());
+		    RestContext.response.addHeader('Content-Type', 'application/text');
+            return;
+        }
+        update contactsDeserialized;
+    }
+}

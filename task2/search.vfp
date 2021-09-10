@@ -1,0 +1,17 @@
+<apex:page Controller="SearchController">
+    <apex:form >
+        <apex:inputText value="{!searchKey}" label="Input"/>
+        <apex:commandButton value="Search records" action="{!search}"/>
+        <apex:pageBlock title="Search Result">
+            <apex:pageBlockTable value="{!ResultWrapperList}" var="a">
+                <apex:column headerValue="Record Name" value="{!a.recordName}"/>
+                <apex:column headerValue="Record Type" value="{!a.recordType}"/>
+                <apex:column headerValue="Click to open">
+                   <apex:outputLink value="/{!a.recordId}" target="_blank">
+                   View
+                   </apex:outputLink>
+      			</apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

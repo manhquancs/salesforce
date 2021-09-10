@@ -1,0 +1,33 @@
+public class SearchController {
+	public list<Account> acc {get;set;}
+    public list<Contact> con {get;set;}
+    public list<ResultWrapper> ResultWrapperList{get;set;}
+    public String searchKey {get;set;}
+    public SearchController( ) {
+    }
+    public void search(){
+        // case-insensitive -> https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_sosl_where.htm
+        string accountSearchQuery='select Name,id, Total_Contacts__c  from Account where name like \''+searchKey+'%\'';
+        string contactSearchQuery='select Name,id, Actve__c  from Contact where name like \''+searchKey+'%\'';
+        acc= Database.query(accountSearchQuery);
+        con= Database.query(contactSearchQuery);
+        ResultWrapperList = new List<ResultWrapper>();
+        for(Account a : acc){
+        	ResultWrapperList.add(new ResultWrapper(a.Name, 'Account', a.id));
+    	}
+        for(Contact c : con){
+        	ResultWrapperList.add(new ResultWrapper(c.Name, 'Contact', c.id));
+    	}
+    }
+
+    public class ResultWrapper {
+        public  String recordName{get; set;}
+    	public  String recordType{get; set;}
+     	public  String recordId{get; set;}
+        ResultWrapper(String recordName, String recordType, String recordId) {
+            this.recordName = recordName;
+            this.recordType = recordType;
+            this.recordId = recordId;   
+        }
+    }
+}

@@ -1,0 +1,6 @@
+trigger ApproveContact on Contact (before insert) {
+    List<contact> contacts = Trigger.new;
+    for(Contact c : contacts){
+        c.Actve__c = true;
+    }
+}

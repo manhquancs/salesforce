@@ -1,0 +1,17 @@
+trigger UpdateTotalContactAfterApprove on Contact (after insert, after update) {
+	List<contact> contacts = Trigger.new;
+    List<Id> accountIds = New List<Id>();
+
+    for(Contact c : contacts){
+        if(c.AccountId != null && c.Actve__c == true){
+            accountIds.add(c.AccountId);
+        }
+    }
+
+    List<Account> acc = [SELECT ID, Name, Total_Contacts__c FROM Account WHERE id in :accountIds];
+    for (Account a : acc) {
+        a.Total_Contacts__c += 1;
+    }
+
+    update acc;
+}

@@ -1,0 +1,17 @@
+trigger DeleteContact on Contact (after delete) {
+	List<contact> contacts = Trigger.old;
+    List<Id> acccountIds = New List<Id>();
+
+    for(Contact c : contacts){
+        if(c.AccountId != null && c.Actve__c == true){
+            acccountIds.add(c.AccountId);
+        }
+    }
+
+    List<Account> acc = [SELECT Name, Total_Contacts__c FROM Account WHERE id in :acccountIds];
+    for (Account a : acc) {
+        a.Total_Contacts__c -= 1;
+    }
+
+    update acc;
+}
